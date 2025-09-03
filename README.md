@@ -1,3 +1,5 @@
+Upstream repo: https://github.com/effytech/freshservice_mcp
+
 # Freshservice MCP Server
 
 [![smithery badge](https://smithery.ai/badge/@effytech/freshservice_mcp)](https://smithery.ai/server/@effytech/freshservice_mcp)
