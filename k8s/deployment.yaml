@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freshservice-mcp
+  namespace: playground
+  labels:
+    app: freshservice-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: freshservice-mcp
+  template:
+    metadata:
+      labels:
+        app: freshservice-mcp
+    spec:
+      containers:
+      - name: freshservice-mcp
+        image: ghcr.io/linkstudioai/freshservice_mcp:main
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: FRESHSERVICE_DOMAIN
+          valueFrom:
+            secretKeyRef:
+              name: freshservice-secrets
+              key: domain
+        - name: FRESHSERVICE_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: freshservice-secrets
+              key: apikey
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        # livenessProbe:
+        #   httpGet:
+        #     path: /mcp/
+        #     port: 8000
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /mcp/
+        #     port: 8000
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: ghcr-pullsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: freshservice-mcp
+  namespace: playground
+  labels:
+    app: freshservice-mcp
+spec:
+  selector:
+    app: freshservice-mcp
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
