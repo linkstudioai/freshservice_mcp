@@ -305,7 +305,7 @@ async def update_ticket(ticket_id: int, ticket_fields: Dict[str, Any]) -> Dict[s
 #FILTER TICKET 
 @mcp.tool()
 async def filter_tickets(query: str, page: int = 1, workspace_id: Optional[int] = None) -> Dict[str, Any]:
-    """Filter the tickets in Freshservice."""
+    """You can filter Freshservice tickets using system and custom fields by passing a URL-encoded query string (max 512 characters, wrapped in double quotes). Field names must be in snake_case from the Ticket Fields API, and you can combine conditions with AND, OR, and parentheses. Supported operators include equality (priority:1), greater/less for numbers and dates (priority:>1, created_at:<'2025-09-05'), and null for unassigned fields. Strings go in single quotes, numbers are plain, and dates use UTC YYYY-MM-DD format with only :>/:<. Each page returns 30 results (use page=N for more), and you can set workspace_id to filter across workspaces (0 = all). Fields include priority, status, impact, urgency, agent_id, group_id, created_at, updated_at, tag, and any custom fields."""
     encoded_query = urllib.parse.quote(query)
     url = f"https://{FRESHSERVICE_DOMAIN}/api/v2/tickets/filter?query={encoded_query}&page={page}"
     
