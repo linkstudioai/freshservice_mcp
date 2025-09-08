@@ -349,14 +349,20 @@ async def delete_ticket(ticket_id: int) -> str:
     
 #GET TICKET BY ID  
 @mcp.tool()
-async def get_ticket_by_id(ticket_id:int) -> str:
+async def get_ticket_by_id(ticket_id:int) -> Dict[str, Any]:
     """Get a ticket in Freshservice."""
     url = f"https://{FRESHSERVICE_DOMAIN}/api/v2/tickets/{ticket_id}"
     headers = get_auth_headers()
 
     async with httpx.AsyncClient() as client:
-        response = await client.get(url,headers=headers)
-        return response.json()
+        try:
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            return {"error": f"Failed to fetch ticket: {str(e)}"}
+        except Exception as e:
+            return {"error": f"An unexpected error occurred: {str(e)}"}
     
 #GET SERVICE ITEMS
 @mcp.tool()
