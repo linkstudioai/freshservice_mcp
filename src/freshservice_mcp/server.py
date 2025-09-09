@@ -6,7 +6,7 @@ import base64
 import json
 import urllib.parse
 from typing import Optional, Dict, Union, Any, List
-from mcp.server.fastmcp import FastMCP 
+from fastmcp import FastMCP
 from enum import IntEnum, Enum
 from pydantic import BaseModel, Field 
 
@@ -25,7 +25,7 @@ mcp = FastMCP("freshservice_mcp")
 
 # API CREDENTIALS
 FRESHSERVICE_DOMAIN = os.getenv("FRESHSERVICE_DOMAIN")
-FRESHSERVICE_APIKEY = os.getenv("FRESHSERVICE_APIKEY")
+FRESHSERVICE_API_KEY = os.getenv("FRESHSERVICE_API_KEY")
 
 
 class TicketSource(IntEnum):
@@ -2230,13 +2230,13 @@ async def publish_solution_article(article_id: int) -> Dict[str, Any]:
 # GET AUTH HEADERS
 def get_auth_headers():
     return {
-        "Authorization": f"Basic {base64.b64encode(f'{FRESHSERVICE_APIKEY}:X'.encode()).decode()}",
+        "Authorization": f"Basic {base64.b64encode(f'{FRESHSERVICE_API_KEY}:X'.encode()).decode()}",
         "Content-Type": "application/json"
     }
 
 def main():
     logging.info("Starting Freshservice MCP server")
-    mcp.run(transport='streamable-http')
+    mcp.run(transport="http", host="0.0.0.0", port=8000, path="/mcp")
 
 if __name__ == "__main__":
     main()
