@@ -27,7 +27,7 @@ spec:
             secretKeyRef:
               name: freshservice-secrets
               key: domain
-        - name: FRESHSERVICE_APIKEY
+        - name: FRESHSERVICE_API_KEY
           valueFrom:
             secretKeyRef:
               name: freshservice-secrets
