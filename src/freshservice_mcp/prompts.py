@@ -166,7 +166,7 @@ Please start by fetching the ticket details using get_ticket_by_id({ticket_id}) 
 
 **Filters Applied:** {filter_text}
 
-**Query String:** "{query}"
+        **Query String:** {query}
 
 **Report Should Include:**
 1. **Summary Statistics:**
@@ -187,7 +187,7 @@ Please start by fetching the ticket details using get_ticket_by_id({ticket_id}) 
    - Resource allocation recommendations
    - Process improvement suggestions
 
-Please start by using filter_tickets with the query: "{query}" and then analyze the results to generate this comprehensive report."""
+Please start by using filter_tickets with the query: {query} and then analyze the results to generate this comprehensive report."""
 
     @mcp.prompt()
     async def escalation_prompt(
@@ -458,7 +458,7 @@ Please start by collecting the team information and analyzing current ticket dis
    - Breach analysis and root causes
    - Trend analysis over time
 
-**Query for Analysis:** "{query}"
+**Query for Analysis:** {query}
 
 **Action Plan:**
 1. **Immediate Actions (Next 2 Hours):**

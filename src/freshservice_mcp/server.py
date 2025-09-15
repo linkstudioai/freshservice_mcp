@@ -19,6 +19,7 @@ from .departments import register_department_tools
 
 # Import prompts
 from .prompts import register_prompts
+from .examples import register_examples
 
 
 # Set up logging
@@ -2254,9 +2255,10 @@ async def publish_solution_article(article_id: int) -> Dict[str, Any]:
 def main():
     logging.info("Starting Freshservice MCP server")
     
-    # Register prompts
+    # Register prompts and examples
     register_prompts(mcp)
-    logging.info("Prompts registered successfully")
+    register_examples(mcp)
+    logging.info("Prompts and examples registered successfully")
     
     mcp.run(transport="http", host="0.0.0.0", port=8000, path="/mcp")
 
