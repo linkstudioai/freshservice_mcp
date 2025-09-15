@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: freshservice-mcp
+  name: freshservice-mcp-leo
   namespace: playground
   labels:
-    app: freshservice-mcp
+    app: freshservice-mcp-leo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: freshservice-mcp
+      app: freshservice-mcp-leo
   template:
     metadata:
       labels:
-        app: freshservice-mcp
+        app: freshservice-mcp-leo
     spec:
       containers:
       - name: freshservice-mcp
-        image: ghcr.io/linkstudioai/freshservice_mcp:main
+        image: ghcr.io/linkstudioai/freshservice_mcp:fix-get-ticketid
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
@@ -27,7 +27,7 @@ spec:
             secretKeyRef:
               name: freshservice-secrets
               key: domain
-        - name: FRESHSERVICE_APIKEY
+        - name: FRESHSERVICE_API_KEY
           valueFrom:
             secretKeyRef:
               name: freshservice-secrets
@@ -58,13 +58,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: freshservice-mcp
+  name: freshservice-mcp-leo
   namespace: playground
   labels:
-    app: freshservice-mcp
+    app: freshservice-mcp-leo
 spec:
   selector:
-    app: freshservice-mcp
+    app: freshservice-mcp-leo
   ports:
   - port: 80
     targetPort: 8000

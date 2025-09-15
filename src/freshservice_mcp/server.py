@@ -6,7 +6,7 @@ import base64
 import json
 import urllib.parse
 from typing import Optional, Dict, Union, Any, List
-from mcp.server.fastmcp import FastMCP 
+from fastmcp import FastMCP
 from enum import IntEnum, Enum
 from pydantic import BaseModel, Field 
 
@@ -25,7 +25,7 @@ mcp = FastMCP("freshservice_mcp")
 
 # API CREDENTIALS
 FRESHSERVICE_DOMAIN = os.getenv("FRESHSERVICE_DOMAIN")
-FRESHSERVICE_APIKEY = os.getenv("FRESHSERVICE_APIKEY")
+FRESHSERVICE_API_KEY = os.getenv("FRESHSERVICE_API_KEY")
 
 
 class TicketSource(IntEnum):
@@ -305,9 +305,9 @@ async def update_ticket(ticket_id: int, ticket_fields: Dict[str, Any]) -> Dict[s
 #FILTER TICKET 
 @mcp.tool()
 async def filter_tickets(query: str, page: int = 1, workspace_id: Optional[int] = None) -> Dict[str, Any]:
-    """Filter the tickets in Freshservice."""
+    """You can filter Freshservice tickets using system and custom fields by passing a URL-encoded `query` string (max 512 characters). Supported fields: workspace_id, requester_id, email, agent_id, group_id, priority, status, impact, urgency, tag, due_by, fr_due_by, created_at, updated_at, plus any custom ticket fields in snake_case. You can combine conditions with AND, OR, and parentheses. Supported operators include equality (priority:1), greater/less for numbers and dates (priority:>1, created_at:<'2025-09-05'), and null for unassigned fields. There is no operator for greater or equal to :>= or less or equal to :<=, they will return errors. Strings go in single quotes, numbers are plain, and dates use UTC YYYY-MM-DD format. Each page returns 30 results (use page=N for more), and you can set workspace_id to filter across workspaces (0 = all). Status codes: open(2), pending(3), resolved(4) and closed(5). Priority codes: low(1), medium(2), high(3), urgent(4)"""
     encoded_query = urllib.parse.quote(query)
-    url = f"https://{FRESHSERVICE_DOMAIN}/api/v2/tickets/filter?query={encoded_query}&page={page}"
+    url = f"https://{FRESHSERVICE_DOMAIN}/api/v2/tickets/filter?query=\"{encoded_query}\"&page={page}"
     
     if workspace_id is not None:
         url += f"&workspace_id={workspace_id}"
@@ -349,14 +349,20 @@ async def delete_ticket(ticket_id: int) -> str:
     
 #GET TICKET BY ID  
 @mcp.tool()
-async def get_ticket_by_id(ticket_id:int) -> str:
+async def get_ticket_by_id(ticket_id:int) -> Dict[str, Any]:
     """Get a ticket in Freshservice."""
     url = f"https://{FRESHSERVICE_DOMAIN}/api/v2/tickets/{ticket_id}"
     headers = get_auth_headers()
 
     async with httpx.AsyncClient() as client:
-        response = await client.get(url,headers=headers)
-        return response.json()
+        try:
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            return {"error": f"Failed to fetch ticket: {str(e)}"}
+        except Exception as e:
+            return {"error": f"An unexpected error occurred: {str(e)}"}
     
 #GET SERVICE ITEMS
 @mcp.tool()
@@ -2230,13 +2236,13 @@ async def publish_solution_article(article_id: int) -> Dict[str, Any]:
 # GET AUTH HEADERS
 def get_auth_headers():
     return {
-        "Authorization": f"Basic {base64.b64encode(f'{FRESHSERVICE_APIKEY}:X'.encode()).decode()}",
+        "Authorization": f"Basic {base64.b64encode(f'{FRESHSERVICE_API_KEY}:X'.encode()).decode()}",
         "Content-Type": "application/json"
     }
 
 def main():
     logging.info("Starting Freshservice MCP server")
-    mcp.run(transport='streamable-http')
+    mcp.run(transport="http", host="0.0.0.0", port=8000, path="/mcp")
 
 if __name__ == "__main__":
     main()
