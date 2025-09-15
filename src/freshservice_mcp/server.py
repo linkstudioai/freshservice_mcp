@@ -17,6 +17,9 @@ load_dotenv()
 # Import department tools
 from .departments import register_department_tools
 
+# Import prompts
+from .prompts import register_prompts
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -2250,6 +2253,11 @@ async def publish_solution_article(article_id: int) -> Dict[str, Any]:
 
 def main():
     logging.info("Starting Freshservice MCP server")
+    
+    # Register prompts
+    register_prompts(mcp)
+    logging.info("Prompts registered successfully")
+    
     mcp.run(transport="http", host="0.0.0.0", port=8000, path="/mcp")
 
 if __name__ == "__main__":
