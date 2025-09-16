@@ -144,4 +144,72 @@ def register_department_tools(mcp_instance, freshservice_domain: str, get_auth_h
                 return {
                     "error": f"Unexpected error occurred while searching for department '{name}': {str(e)}"
                 }
+    
+    @mcp_instance.tool()
+    async def get_department_id(department_id: int) -> Dict[str, Any]:
+        """Get department details by department ID.
+        
+        Args:
+            department_id: The ID of the department to retrieve
+            
+        Returns:
+            Dictionary containing department details or error information
+        """
+        if not department_id or department_id <= 0:
+            return {
+                "error": "Department ID is required and must be a positive integer"
+            }
+        
+        url = f"https://{freshservice_domain}/api/v2/departments/{department_id}"
+        headers = get_auth_headers_func()
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(url, headers=headers)
+                response.raise_for_status()
+                
+                data = response.json()
+                
+                # Extract department from response
+                department = data.get("department", data)
+                
+                return {
+                    "success": True,
+                    "message": f"Department found: '{department.get('name', 'Unknown')}'",
+                    "department": {
+                        "id": department.get("id"),
+                        "name": department.get("name"),
+                        "description": department.get("description"),
+                        "head_user_id": department.get("head_user_id"),
+                        "prime_user_id": department.get("prime_user_id"),
+                        "domains": department.get("domains", []),
+                        "created_at": department.get("created_at"),
+                        "updated_at": department.get("updated_at")
+                    }
+                }
+
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    return {
+                        "success": False,
+                        "message": f"No department found with ID: {department_id}",
+                        "department": None
+                    }
+                
+                error_text = None
+                try:
+                    error_text = e.response.json() if e.response else None
+                except Exception:
+                    error_text = e.response.text if e.response else None
+
+                return {
+                    "error": f"Failed to retrieve department with ID {department_id}: {str(e)}",
+                    "status_code": e.response.status_code if e.response else None,
+                    "details": error_text
+                }
+
+            except Exception as e:
+                return {
+                    "error": f"Unexpected error occurred while retrieving department ID {department_id}: {str(e)}"
+                }
 
