@@ -14,6 +14,9 @@ from pydantic import BaseModel, Field
 from dotenv import load_dotenv 
 load_dotenv()
 
+# Import department tools
+from .departments import register_department_tools
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -26,6 +29,18 @@ mcp = FastMCP("freshservice_mcp")
 # API CREDENTIALS
 FRESHSERVICE_DOMAIN = os.getenv("FRESHSERVICE_DOMAIN")
 FRESHSERVICE_API_KEY = os.getenv("FRESHSERVICE_API_KEY")
+
+
+# GET AUTH HEADERS
+def get_auth_headers():
+    return {
+        "Authorization": f"Basic {base64.b64encode(f'{FRESHSERVICE_API_KEY}:X'.encode()).decode()}",
+        "Content-Type": "application/json"
+    }
+
+
+# Register department tools
+register_department_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
 
 
 class TicketSource(IntEnum):
@@ -2232,13 +2247,6 @@ async def publish_solution_article(article_id: int) -> Dict[str, Any]:
             return {
                 "error": f"Unexpected error occurred: {str(e)}"
             }
-
-# GET AUTH HEADERS
-def get_auth_headers():
-    return {
-        "Authorization": f"Basic {base64.b64encode(f'{FRESHSERVICE_API_KEY}:X'.encode()).decode()}",
-        "Content-Type": "application/json"
-    }
 
 def main():
     logging.info("Starting Freshservice MCP server")
