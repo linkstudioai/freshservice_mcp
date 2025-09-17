@@ -10,6 +10,36 @@ from typing import Dict, Any
 from freshservice_api import SolutionsAPI
 
 
+def _format_article(article: Dict[str, Any], freshservice_domain: str) -> Dict[str, Any]:
+    """Format a single article for consistent output structure.
+    
+    Args:
+        article: Raw article data from API
+        freshservice_domain: Domain for generating article URLs
+        
+    Returns:
+        Formatted article dictionary
+    """
+    return {
+        "id": article.get("id"),
+        "title": article.get("title"),
+        "description": article.get("description"),
+        # "status": article.get("status"),
+        "article_type": article.get("article_type"),
+        "folder_id": article.get("folder_id"),
+        "category_id": article.get("category_id"),
+        "thumbs_up": article.get("thumbs_up", 0),
+        "thumbs_down": article.get("thumbs_down", 0),
+        # "hits": article.get("hits", 0),
+        "tags": article.get("tags", []),
+        "keywords": article.get("keywords", []),
+        # "review_date": article.get("review_date"),
+        # "created_at": article.get("created_at"),
+        "updated_at": article.get("updated_at"),
+        "url": f"https://{freshservice_domain}/support/solutions/articles/{article.get('id')}" if article.get('id') else None
+    }
+
+
 def register_solution_tools(mcp_instance, freshservice_domain: str, get_auth_headers_func):
     """Register solution-related tools with the MCP instance."""
     
@@ -42,34 +72,30 @@ def register_solution_tools(mcp_instance, freshservice_domain: str, get_auth_hea
                     "total_count": 0
                 }
             
-            # Format articles for better readability
-            formatted_articles = []
-            for article in all_articles:
-                formatted_article = {
-                    "id": article.get("id"),
-                    "title": article.get("title"),
-                    "description": article.get("description"),
-                    "status": article.get("status"),
-                    "article_type": article.get("article_type"),
-                    "folder_id": article.get("folder_id"),
-                    "category_id": article.get("category_id"),
-                    "thumbs_up": article.get("thumbs_up", 0),
-                    "thumbs_down": article.get("thumbs_down", 0),
-                    "hits": article.get("hits", 0),
-                    "tags": article.get("tags", []),
-                    "keywords": article.get("keywords", []),
-                    "review_date": article.get("review_date"),
-                    "created_at": article.get("created_at"),
-                    "updated_at": article.get("updated_at"),
-                    "url": f"https://{freshservice_domain}/support/solutions/articles/{article.get('id')}" if article.get('id') else None
+            # Filter for only published articles (status: 2) and format for better readability
+            published_articles = [article for article in all_articles if article.get("status") == 2]
+            
+            if not published_articles:
+                return {
+                    "success": True,
+                    "message": f"No published articles found for search term: '{search_term}' (found {len(all_articles)} total articles, but none were published)",
+                    "articles": [],
+                    "total_count": 0,
+                    "total_found": len(all_articles),
+                    "search_term": search_term
                 }
-                formatted_articles.append(formatted_article)
+            
+            formatted_articles = [
+                _format_article(article, freshservice_domain) 
+                for article in published_articles
+            ]
             
             return {
                 "success": True,
-                "message": f"Found {len(all_articles)} articles for search term: '{search_term}'",
+                "message": f"Found {len(published_articles)} published articles for search term: '{search_term}' (filtered from {len(all_articles)} total articles)",
                 "articles": formatted_articles,
-                "total_count": len(all_articles),
+                "total_count": len(published_articles),
+                "total_found": len(all_articles),
                 "search_term": search_term
             }
 
@@ -134,36 +160,35 @@ def register_solution_tools(mcp_instance, freshservice_domain: str, get_auth_hea
                     "total_count": 0
                 }
             
-            # Format articles for better readability
-            formatted_articles = []
-            for article in articles:
-                formatted_article = {
-                    "id": article.get("id"),
-                    "title": article.get("title"),
-                    "description": article.get("description"),
-                    "status": article.get("status"),
-                    "article_type": article.get("article_type"),
-                    "folder_id": article.get("folder_id"),
-                    "category_id": article.get("category_id"),
-                    "thumbs_up": article.get("thumbs_up", 0),
-                    "thumbs_down": article.get("thumbs_down", 0),
-                    "hits": article.get("hits", 0),
-                    "tags": article.get("tags", []),
-                    "keywords": article.get("keywords", []),
-                    "review_date": article.get("review_date"),
-                    "created_at": article.get("created_at"),
-                    "updated_at": article.get("updated_at"),
-                    "url": f"https://{freshservice_domain}/support/solutions/articles/{article.get('id')}" if article.get('id') else None
+            # Filter for only published articles (status: 2) and format for better readability
+            published_articles = [article for article in articles if article.get("status") == 2]
+            
+            if not published_articles:
+                return {
+                    "success": True,
+                    "message": f"No published articles found for search term: '{search_term}' on page {page} (found {len(articles)} total articles, but none were published)",
+                    "articles": [],
+                    "page": page,
+                    "per_page": per_page,
+                    "returned_count": 0,
+                    "total_found": len(articles),
+                    "search_term": search_term,
+                    "has_more": len(articles) == per_page
                 }
-                formatted_articles.append(formatted_article)
+            
+            formatted_articles = [
+                _format_article(article, freshservice_domain) 
+                for article in published_articles
+            ]
             
             return {
                 "success": True,
-                "message": f"Found {len(articles)} articles for search term: '{search_term}' on page {page}",
+                "message": f"Found {len(published_articles)} published articles for search term: '{search_term}' on page {page} (filtered from {len(articles)} total articles)",
                 "articles": formatted_articles,
                 "page": page,
                 "per_page": per_page,
-                "returned_count": len(articles),
+                "returned_count": len(published_articles),
+                "total_found": len(articles),
                 "search_term": search_term,
                 "has_more": len(articles) == per_page  # Indicates if there might be more pages
             }

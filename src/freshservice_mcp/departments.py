@@ -10,6 +10,27 @@ from typing import Dict, Any
 from freshservice_api import DepartmentsAPI
 
 
+def _format_department(department: Dict[str, Any]) -> Dict[str, Any]:
+    """Format a single department for consistent output structure.
+    
+    Args:
+        department: Raw department data from API
+        
+    Returns:
+        Formatted department dictionary
+    """
+    return {
+        "id": department.get("id"),
+        "name": department.get("name"),
+        "description": department.get("description"),
+        # "head_user_id": department.get("head_user_id"),
+        # "prime_user_id": department.get("prime_user_id"),
+        # "domains": department.get("domains", []),
+        # "created_at": department.get("created_at"),
+        # "updated_at": department.get("updated_at")
+    }
+
+
 def register_department_tools(mcp_instance, freshservice_domain: str, get_auth_headers_func):
     """Register department-related tools with the MCP instance."""
     
@@ -80,16 +101,7 @@ def register_department_tools(mcp_instance, freshservice_domain: str, get_auth_h
             return {
                 "success": True,
                 "message": f"Department found: '{department.get('name', 'Unknown')}'",
-                "department": {
-                    "id": department.get("id"),
-                    "name": department.get("name"),
-                    "description": department.get("description"),
-                    "head_user_id": department.get("head_user_id"),
-                    "prime_user_id": department.get("prime_user_id"),
-                    "domains": department.get("domains", []),
-                    "created_at": department.get("created_at"),
-                    "updated_at": department.get("updated_at")
-                },
+                "department": _format_department(department),
                 "total_matches": len(departments)
             }
 
@@ -135,16 +147,7 @@ def register_department_tools(mcp_instance, freshservice_domain: str, get_auth_h
             return {
                 "success": True,
                 "message": f"Department found: '{department.get('name', 'Unknown')}'",
-                "department": {
-                    "id": department.get("id"),
-                    "name": department.get("name"),
-                    "description": department.get("description"),
-                    "head_user_id": department.get("head_user_id"),
-                    "prime_user_id": department.get("prime_user_id"),
-                    "domains": department.get("domains", []),
-                    "created_at": department.get("created_at"),
-                    "updated_at": department.get("updated_at")
-                }
+                "department": _format_department(department)
             }
 
         except httpx.HTTPStatusError as e:
