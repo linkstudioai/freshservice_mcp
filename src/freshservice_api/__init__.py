@@ -17,7 +17,8 @@ from .departments import (
 from .solutions import (
     SolutionsAPI,
     search_articles,
-    search_all_articles
+    search_all_articles,
+    clean_html_content
 )
 
 __all__ = [
@@ -28,5 +29,6 @@ __all__ = [
     'get_department_by_id',
     'SolutionsAPI',
     'search_articles',
-    'search_all_articles'
+    'search_all_articles',
+    'clean_html_content'
 ]
