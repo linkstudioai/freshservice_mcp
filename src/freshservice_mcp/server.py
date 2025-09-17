@@ -16,6 +16,8 @@ load_dotenv()
 
 # Import department tools
 from .departments import register_department_tools
+# Import solution tools
+from .solutions import register_solution_tools
 
 
 # Set up logging
@@ -41,6 +43,9 @@ def get_auth_headers():
 
 # Register department tools
 register_department_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
+
+# Register solution tools
+register_solution_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
 
 
 class TicketSource(IntEnum):
