@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  freshservice-mcp:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    # Or use environment variables directly:
+    # environment:
+    #   - FRESHSERVICE_DOMAIN=your-domain.freshservice.com
+    #   - FRESHSERVICE_API_KEY=your-api-key-here
