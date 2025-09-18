@@ -18,6 +18,8 @@ load_dotenv()
 from .departments import register_department_tools
 # Import solution tools
 from .solutions import register_solution_tools
+# Import requester tools
+from .requesters import register_requester_tools
 
 
 # Set up logging
@@ -46,6 +48,9 @@ register_department_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
 
 # Register solution tools
 register_solution_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
+
+# Register requester tools
+register_requester_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
 
 
 class TicketSource(IntEnum):
