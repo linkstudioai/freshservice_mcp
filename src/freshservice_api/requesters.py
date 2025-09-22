@@ -17,21 +17,31 @@ class RequestersAPI:
         self.get_auth_headers = get_auth_headers_func
         self.base_url = f"https://{freshservice_domain}/api/v2/requesters"
     
-    async def search_requesters_by_name(self, first_name: str, last_name: Optional[str] = None) -> Dict[str, Any]:
-        """Search requesters by first name and optionally last name.
+    async def search_requesters_by_name(self, first_name: Optional[str] = None, last_name: Optional[str] = None) -> Dict[str, Any]:
+        """Search requesters by first name and/or last name.
         
         Args:
-            first_name: First name to search for
+            first_name: Optional first name to search for
             last_name: Optional last name to search for
             
         Returns:
             Dictionary containing API response
+            
+        Raises:
+            ValueError: If neither first_name nor last_name is provided
         """
-        # Build the query string
-        if last_name:
-            query = f"first_name:'{first_name.strip()}' AND last_name:'{last_name.strip()}'"
-        else:
-            query = f"first_name:'{first_name.strip()}'"
+        # Validate that at least one parameter is provided
+        if not first_name and not last_name:
+            raise ValueError("At least one of first_name or last_name must be provided")
+        
+        # Build the query string based on provided parameters
+        query_parts = []
+        if first_name and first_name.strip():
+            query_parts.append(f"first_name:'{first_name.strip()}'")
+        if last_name and last_name.strip():
+            query_parts.append(f"last_name:'{last_name.strip()}'")
+        
+        query = " AND ".join(query_parts)
         
         encoded_query = urllib.parse.quote(query)
         url = f"{self.base_url}?query={encoded_query}"
@@ -119,8 +129,8 @@ class RequestersAPI:
 
 
 # Convenience functions for backward compatibility
-async def search_requesters_by_name(freshservice_domain: str, get_auth_headers_func, first_name: str, last_name: Optional[str] = None) -> Dict[str, Any]:
-    """Search requesters by first name and optionally last name."""
+async def search_requesters_by_name(freshservice_domain: str, get_auth_headers_func, first_name: Optional[str] = None, last_name: Optional[str] = None) -> Dict[str, Any]:
+    """Search requesters by first name and/or last name."""
     api = RequestersAPI(freshservice_domain, get_auth_headers_func)
     return await api.search_requesters_by_name(first_name, last_name)
 

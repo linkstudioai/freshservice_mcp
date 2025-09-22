@@ -41,34 +41,47 @@ def register_requester_tools(mcp_instance, freshservice_domain: str, get_auth_he
     requesters_api = RequestersAPI(freshservice_domain, get_auth_headers_func)
     
     @mcp_instance.tool()
-    async def search_requesters_by_name(first_name: str, last_name: Optional[str] = None) -> Dict[str, Any]:
-        """Search requesters by first name and optionally last name.
+    async def search_requesters_by_name(first_name: Optional[str] = None, last_name: Optional[str] = None) -> Dict[str, Any]:
+        """Search requesters by first name and/or last name.
         
         Args:
-            first_name: First name to search for (required)
+            first_name: First name to search for (optional)
             last_name: Last name to search for (optional)
             
         Returns:
             Dictionary containing matching requesters or error information
         """
-        if not first_name or not first_name.strip():
+        # Validate that at least one parameter is provided and not empty
+        first_name_valid = first_name and first_name.strip()
+        last_name_valid = last_name and last_name.strip()
+        
+        if not first_name_valid and not last_name_valid:
             return {
-                "error": "First name is required and cannot be empty"
+                "error": "At least one of first_name or last_name must be provided and cannot be empty"
             }
         
         try:
-            data = await requesters_api.search_requesters_by_name(first_name.strip(), last_name.strip() if last_name else None)
+            # Pass the validated parameters to the API
+            data = await requesters_api.search_requesters_by_name(
+                first_name.strip() if first_name_valid else None, 
+                last_name.strip() if last_name_valid else None
+            )
             
             # Extract requesters from response
             requesters = data.get("requesters", [])
             
+            # Build search term for display
+            search_parts = []
+            if first_name_valid:
+                search_parts.append(f"first name: '{first_name.strip()}'")
+            if last_name_valid:
+                search_parts.append(f"last name: '{last_name.strip()}'")
+            search_term = " and ".join(search_parts)
+            
             if not requesters:
-                search_term = f"{first_name}"
-                if last_name:
-                    search_term += f" {last_name}"
                 return {
                     "success": True,
-                    "message": f"No requesters found with name: '{search_term}'",
+                    "message": f"No requesters found with {search_term}",
                     "requesters": [],
                     "total_count": 0
                 }
@@ -76,13 +89,9 @@ def register_requester_tools(mcp_instance, freshservice_domain: str, get_auth_he
             # Format requesters for consistent output
             formatted_requesters = [_format_requester(req) for req in requesters]
             
-            search_term = f"{first_name}"
-            if last_name:
-                search_term += f" {last_name}"
-            
             return {
                 "success": True,
-                "message": f"Found {len(requesters)} requester(s) matching name: '{search_term}'",
+                "message": f"Found {len(requesters)} requester(s) matching {search_term}",
                 "requesters": formatted_requesters,
                 "total_count": len(requesters)
             }
@@ -94,22 +103,31 @@ def register_requester_tools(mcp_instance, freshservice_domain: str, get_auth_he
             except Exception:
                 error_text = e.response.text if e.response else None
 
-            search_term = f"{first_name}"
-            if last_name:
-                search_term += f" {last_name}"
+            # Build search term for error messages
+            search_parts = []
+            if first_name_valid:
+                search_parts.append(f"first name: '{first_name.strip()}'")
+            if last_name_valid:
+                search_parts.append(f"last name: '{last_name.strip()}'")
+            search_term = " and ".join(search_parts)
 
             return {
-                "error": f"Failed to search for requesters with name '{search_term}': {str(e)}",
+                "error": f"Failed to search for requesters with {search_term}: {str(e)}",
                 "status_code": e.response.status_code if e.response else None,
                 "details": error_text
             }
 
         except Exception as e:
-            search_term = f"{first_name}"
-            if last_name:
-                search_term += f" {last_name}"
+            # Build search term for error messages
+            search_parts = []
+            if first_name_valid:
+                search_parts.append(f"first name: '{first_name.strip()}'")
+            if last_name_valid:
+                search_parts.append(f"last name: '{last_name.strip()}'")
+            search_term = " and ".join(search_parts)
+            
             return {
-                "error": f"Unexpected error occurred while searching for requesters with name '{search_term}': {str(e)}"
+                "error": f"Unexpected error occurred while searching for requesters with {search_term}: {str(e)}"
             }
     
     @mcp_instance.tool()
