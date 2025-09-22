@@ -140,16 +140,3 @@ class SolutionsAPI:
         return all_articles
 
 
-# Convenience functions for backward compatibility
-async def search_articles(freshservice_domain: str, get_auth_headers_func, search_term: str, page: int = 1, per_page: int = 100) -> Dict[str, Any]:
-    """Search articles with pagination."""
-    api = SolutionsAPI(freshservice_domain, get_auth_headers_func)
-    return await api.search_articles(search_term, page, per_page)
-
-
-async def search_all_articles(freshservice_domain: str, get_auth_headers_func, search_term: str) -> List[Dict[str, Any]]:
-    """Search all articles across all pages for a given term."""
-    api = SolutionsAPI(freshservice_domain, get_auth_headers_func)
-    return await api.search_all_articles(search_term)
-
-

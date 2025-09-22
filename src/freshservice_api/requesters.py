@@ -127,27 +127,3 @@ class RequestersAPI:
             response.raise_for_status()
             return response.json()
 
-
-# Convenience functions for backward compatibility
-async def search_requesters_by_name(freshservice_domain: str, get_auth_headers_func, first_name: Optional[str] = None, last_name: Optional[str] = None) -> Dict[str, Any]:
-    """Search requesters by first name and/or last name."""
-    api = RequestersAPI(freshservice_domain, get_auth_headers_func)
-    return await api.search_requesters_by_name(first_name, last_name)
-
-
-async def get_requesters_by_department_id(freshservice_domain: str, get_auth_headers_func, department_id: int, page: int = 1, per_page: int = 100) -> Dict[str, Any]:
-    """Get requesters from a specific department with pagination."""
-    api = RequestersAPI(freshservice_domain, get_auth_headers_func)
-    return await api.get_requesters_by_department_id(department_id, page, per_page)
-
-
-async def get_all_requesters_by_department_id(freshservice_domain: str, get_auth_headers_func, department_id: int) -> List[Dict[str, Any]]:
-    """Get all requesters from a specific department across all pages."""
-    api = RequestersAPI(freshservice_domain, get_auth_headers_func)
-    return await api.get_all_requesters_by_department_id(department_id)
-
-
-async def get_requester_by_id(freshservice_domain: str, get_auth_headers_func, requester_id: int) -> Dict[str, Any]:
-    """Get requester by ID."""
-    api = RequestersAPI(freshservice_domain, get_auth_headers_func)
-    return await api.get_requester_by_id(requester_id)

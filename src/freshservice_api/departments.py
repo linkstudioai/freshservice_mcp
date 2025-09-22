@@ -104,28 +104,3 @@ class DepartmentsAPI:
             response = await client.get(url, headers=headers)
             response.raise_for_status()
             return response.json()
-
-
-# Convenience functions for backward compatibility
-async def list_departments(freshservice_domain: str, get_auth_headers_func, page: int = 1, per_page: int = 100) -> Dict[str, Any]:
-    """List departments with pagination."""
-    api = DepartmentsAPI(freshservice_domain, get_auth_headers_func)
-    return await api.list_departments(page, per_page)
-
-
-async def get_all_departments(freshservice_domain: str, get_auth_headers_func) -> List[Dict[str, Any]]:
-    """Fetch all departments across all pages."""
-    api = DepartmentsAPI(freshservice_domain, get_auth_headers_func)
-    return await api.get_all_departments()
-
-
-async def search_departments_by_name(freshservice_domain: str, get_auth_headers_func, name: str) -> Dict[str, Any]:
-    """Search departments by name."""
-    api = DepartmentsAPI(freshservice_domain, get_auth_headers_func)
-    return await api.search_departments_by_name(name)
-
-
-async def get_department_by_id(freshservice_domain: str, get_auth_headers_func, department_id: int) -> Dict[str, Any]:
-    """Get department by ID."""
-    api = DepartmentsAPI(freshservice_domain, get_auth_headers_func)
-    return await api.get_department_by_id(department_id)
