@@ -53,9 +53,9 @@ class RequestersAPI:
         Returns:
             Dictionary containing API response
         """
-        query = f"department_ids:{department_id}"
+        query = f"department_id:{department_id}"
         encoded_query = urllib.parse.quote(query)
-        url = f"{self.base_url}?query={encoded_query}&page={page}&per_page={per_page}"
+        url = f'{self.base_url}?query="{encoded_query}"&page={page}&per_page={per_page}'
         headers = self.get_auth_headers()
         
         async with httpx.AsyncClient() as client:
