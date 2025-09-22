@@ -25,7 +25,7 @@ class RequestersAPI:
             last_name: Optional last name to search for
             
         Returns:
-            Dictionary containing API response
+            Dictionary containing API response (includes both requesters and agents)
             
         Raises:
             ValueError: If neither first_name nor last_name is provided
@@ -44,7 +44,8 @@ class RequestersAPI:
         query = " AND ".join(query_parts)
         
         encoded_query = urllib.parse.quote(query)
-        url = f"{self.base_url}?query={encoded_query}"
+        url = f"{self.base_url}?query={encoded_query}&include_agents=true"
+        
         headers = self.get_auth_headers()
         
         async with httpx.AsyncClient() as client:
@@ -61,11 +62,11 @@ class RequestersAPI:
             per_page: Items per page (default: 100, max: 100)
             
         Returns:
-            Dictionary containing API response
+            Dictionary containing API response (includes both requesters and agents)
         """
         query = f"department_id:{department_id}"
         encoded_query = urllib.parse.quote(query)
-        url = f'{self.base_url}?query="{encoded_query}"&page={page}&per_page={per_page}'
+        url = f'{self.base_url}?query="{encoded_query}"&page={page}&per_page={per_page}&include_agents=true'
         headers = self.get_auth_headers()
         
         async with httpx.AsyncClient() as client:
@@ -80,7 +81,7 @@ class RequestersAPI:
             department_id: Department ID to filter requesters by
             
         Returns:
-            List of all requesters in the department
+            List of all requesters and agents in the department
         """
         all_requesters = []
         page = 1
