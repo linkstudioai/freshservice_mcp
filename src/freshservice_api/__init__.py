@@ -21,6 +21,14 @@ from .solutions import (
     clean_html_content
 )
 
+from .requesters import (
+    RequestersAPI,
+    search_requesters_by_name,
+    get_requesters_by_department_id,
+    get_all_requesters_by_department_id,
+    get_requester_by_id
+)
+
 __all__ = [
     'DepartmentsAPI',
     'list_departments',
@@ -30,5 +38,10 @@ __all__ = [
     'SolutionsAPI',
     'search_articles',
     'search_all_articles',
-    'clean_html_content'
+    'clean_html_content',
+    'RequestersAPI',
+    'search_requesters_by_name',
+    'get_requesters_by_department_id',
+    'get_all_requesters_by_department_id',
+    'get_requester_by_id'
 ]
