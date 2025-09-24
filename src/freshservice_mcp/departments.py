@@ -6,7 +6,7 @@ It uses the freshservice_api package for the actual API calls.
 """
 
 import httpx
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from freshservice_api import DepartmentsAPI
 
 
@@ -38,7 +38,7 @@ def register_department_tools(mcp_instance, freshservice_domain: str, get_auth_h
     departments_api = DepartmentsAPI(freshservice_domain, get_auth_headers_func)
     
     @mcp_instance.tool()
-    async def list_all_departments() -> Dict[str, Any]:
+    async def list_all_departments(params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """List all departments in Freshservice. Fetches all departments across all pages."""
         try:
             all_departments = await departments_api.get_all_departments()
