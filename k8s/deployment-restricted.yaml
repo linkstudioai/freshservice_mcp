@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: freshservice-mcp-restricted
-  namespace: playground
+  namespace: assistant
   labels:
     app: freshservice-mcp-restricted
 spec:
@@ -14,6 +14,7 @@ spec:
     metadata:
       labels:
         app: freshservice-mcp-restricted
+        network-policy: cogo-allow-assistant-namespace
     spec:
       containers:
       - name: freshservice-mcp
@@ -59,7 +60,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: freshservice-mcp-restricted
-  namespace: playground
+  namespace: assistant
   labels:
     app: freshservice-mcp-restricted
 spec:
