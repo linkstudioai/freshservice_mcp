@@ -20,6 +20,8 @@ from .departments import register_department_tools
 from .solutions import register_solution_tools
 # Import requester tools
 from .requesters import register_requester_tools
+# Import service item tools
+from .service import register_service_item_tools
 
 
 # Set up logging
@@ -51,6 +53,9 @@ register_solution_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
 
 # Register requester tools
 register_requester_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
+
+# Register service item tools
+register_service_item_tools(mcp, FRESHSERVICE_DOMAIN, get_auth_headers)
 
 
 class TicketSource(IntEnum):
