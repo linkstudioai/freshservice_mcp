@@ -77,7 +77,7 @@ class ServiceItemsAPI:
         """
         # Encode the query parameter
         encoded_query = urllib.parse.quote(query)
-        url = f"{self.base_url}?query=\"{encoded_query}\""
+        url = f"{self.base_url}/search?search_term=\"{encoded_query}\""
         headers = self.get_auth_headers()
         
         async with httpx.AsyncClient() as client:
