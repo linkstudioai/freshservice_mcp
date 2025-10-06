@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freshservice-mcp-restricted
+  namespace: playground
+  labels:
+    app: freshservice-mcp-restricted
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: freshservice-mcp-restricted
+  template:
+    metadata:
+      labels:
+        app: freshservice-mcp-restricted
+        network-policy: cogo-allow-assistant-namespace
+    spec:
+      containers:
+      - name: freshservice-mcp
+        image: ghcr.io/linkstudioai/freshservice_mcp:restricted-access
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: FRESHSERVICE_DOMAIN
+          valueFrom:
+            secretKeyRef:
+              name: freshservice-secrets
+              key: domain
+        - name: FRESHSERVICE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: freshservice-secrets
+              key: apikey
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        # livenessProbe:
+        #   httpGet:
+        #     path: /mcp/
+        #     port: 8000
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /mcp/
+        #     port: 8000
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: ghcr-pullsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: freshservice-mcp-restricted
+  namespace: playground
+  labels:
+    app: freshservice-mcp-restricted
+spec:
+  selector:
+    app: freshservice-mcp-restricted
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP

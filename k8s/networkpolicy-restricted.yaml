@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: from-assistant-namespace-policy
+  namespace: assistant
+spec:
+  podSelector:
+    matchLabels:
+      network-policy: cogo-allow-assistant-namespace
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: assistant
+    ports:
+    - protocol: TCP
+      port: 8000
+
